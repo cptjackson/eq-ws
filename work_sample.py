@@ -57,20 +57,20 @@ df_pois['Std Distance'] =\
     df.groupby('Closest POI')['POI Distance'].std().values
 
 print('Problems 2 and 3: average and std distances, radius and density')
-print('Average distance: ')
+print('Average distance (km): ')
 print(df_pois[['POIID','Average Distance']],'\n')
-print('Std distance: ')
+print('Std distance (km): ')
 print(df_pois[['POIID','Std Distance']],'\n')
 
 # 2. Radius and density of a circle with the POI at its centre
 df_pois['Radius'] = df.groupby('Closest POI')['POI Distance'].max().values
-df_pois['Area'] = np.pi * df_pois['Radius']**2
+df_pois['Area'] = np.pi * np.power(df_pois['Radius'],2)
 df_pois['Requests'] = df['Closest POI'].value_counts().values
 df_pois['Density'] = df_pois['Requests'] / df_pois['Area']
 
-print('Radius: ')
+print('Radius (km): ')
 print(df_pois[['POIID','Radius']],'\n')
-print('Density: ')
+print('Density (requests/km): ')
 print(df_pois[['POIID','Density']],'\n')
 
 
@@ -87,8 +87,8 @@ def map_raw_scores(raw_scores):
 
     op_start = -10
     op_end = 10
-    ip_start = 0
-    ip_end = raw_scores.max()
+    ip_start = np.min(raw_scores)
+    ip_end = np.max(raw_scores)
 
     output = op_start + ((op_end - op_start) / (ip_end - ip_start)) \
              * (raw_scores - ip_start)
@@ -160,4 +160,4 @@ def get_task_order(start_task,end_task,dep_arr):
 
 
 print('Problem 4b: Pipeline dependency task order')
-print(get_task_order(73,36,dep_arr))
+print(get_task_order(start_task,goal_task,dep_arr))

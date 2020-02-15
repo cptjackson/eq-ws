@@ -16,6 +16,7 @@ Note that for modelling purposes I have only used values from the data in the fi
 - time of year (seasonality)
 - type of place: is it a club? a store? does it have a sale on?
 - unique ID info: can we track people driving past vs. just being in the area? Speed of movement can tell us some things
+- How far are people willing to travel to get to a POI?
 
 
 Some hypotheses...
@@ -33,7 +34,7 @@ Hypothesis: Times are in local time (as they are not time zone coded)
 - Look at the histogram of number of requests sent each hour of the day
 - Uniformly districted from morning to evening in raw form
 - Transform to localised time based on time zone
-- Now there are more requests in the late evening and early morning with a gap in the late afternoon
+- Now there are more requests in the late evening with gaps in the late afternoon
 - Conclusion: likely that times are indeed in local time (odd shape of transformed distribution is not very informative, so not enough evidence to reject H0)
 
 Hypothesis: All IDs in dataset (after deduplication for geodata) are unique
@@ -95,3 +96,5 @@ POI3: 10
 POI4: -10
 
 Looks good. Standard deviation of request distance might also be a factor but request density takes care of a lot of this, they are negatively correlated (-0.62)
+
+Something else I explored was the distributions of the distances. This is covered by the reciprocal distance mainly, but the histograms show that POI1 has a concentrated number of requests nearby (Edmonton and Calgary) and POI3 has a few nearby and a lot from about 500 km away (i.e., Toronto).
