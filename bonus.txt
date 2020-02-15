@@ -13,6 +13,9 @@ What makes a place more likely to be visited? Ideas based on the data provided:
 Note that for modelling purposes I have only used values from the data in the file here. Other variables that might be interesting include:
 - number of hits on Google (more = more popular)
 - what day of the week it is (weekend requests might be different to weekday requests)
+- time of year (seasonality)
+- type of place: is it a club? a store? does it have a sale on?
+- unique ID info: can we track people driving past vs. just being in the area? Speed of movement can tell us some things
 
 
 Some hypotheses...
