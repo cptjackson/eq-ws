@@ -1,0 +1,94 @@
+Major assumption is that 'popularity' of a POI means that people are more likely to visit it.
+
+Assumption: The data given are representative of the points of interest in the larger dataset
+
+What makes a place more likely to be visited? Ideas based on the data provided:
+
+- More people nearby (larger number of requests)
+- People are closer to it (smaller distance away)
+- Leads to: higher density (requests/area) weighted by request distance
+- Low request distance std also means that requests come from more consistent distances
+- Is time also a factor? Explore below
+
+Note that for modelling purposes I have only used values from the data in the file here. Other variables that might be interesting include:
+- number of hits on Google (more = more popular)
+- what day of the week it is (weekend requests might be different to weekday requests)
+
+
+Some hypotheses...
+
+Hypothesis: Latitude and longitude can be trusted and match location info
+- To test this, get time zone information using timezonefinder package
+- Some lats/longs do not match with supposed city
+- e.g., city = Toronto and time zone = 'Europe/Berlin'
+- Therefore filter out all time zones that don't have America in them
+- Grouping by time zone and viewing unique cities shows that the other data look ok
+- Filtering removes extreme values that are probably erroneous
+- Conclusion: after filtering, lat and long can be trusted
+
+Hypothesis: Times are in local time (as they are not time zone coded)
+- Look at the histogram of number of requests sent each hour of the day
+- Uniformly districted from morning to evening in raw form
+- Transform to localised time based on time zone
+- Now there are more requests in the late evening and early morning with a gap in the late afternoon
+- Conclusion: likely that times are indeed in local time (odd shape of transformed distribution is not very informative, so not enough evidence to reject H0)
+
+Hypothesis: All IDs in dataset (after deduplication for geodata) are unique
+- The IDs are a form of anonymised identification of a device (i.e., they are all separate devices)
+- So check to see if we have any duplicated device IDs. We probably don't want to count people twice.
+- Number of records: 19977
+- Number of unique IDs: 19977
+- Conclusion: IDs in dataset are unique
+
+Hypothesis: More requests at certain times of day affect popularity
+- All data are from a Wednesday, assume normal working day (not a holiday)
+- People are more likely to visit the POI outside working hours (assumption)
+- Should requests outside working hours/at lunchtimes be weighted higher?
+- Current data set does not show signs of differential requests at different times of day
+- Conclusion: No evidence that time of day has an impact on request density etc.
+
+
+MODEL BUILDING
+
+What would a good model look like? Popularity from most to least?
+- Tourist attraction in a big city (e.g., CN Tower)
+- Restaurant/mall/etc. in a big city
+- Tourist attraction/mall etc. in or near a smaller city
+- Middle of nowhere
+
+What would be a reasonable answer?
+- POI1 is in Edmonton, high population and Calgary nearby so probably quite popular (between 0 and 10)
+- POI3 is in the middle of Montreal, so likely to be very popular (so a 10)
+- POI4 is in the countryside in Nova Scotia, probably not popular at all (so a -10)
+- This is hard to test as we have so few points
+
+Density (requests/area) is a good starting measure of popularity
+- Using this alone and normalising for max/min values gives:
+POI1: -10
+POI3: 10
+POI4: -10
+
+Request distance also factors in
+- Closer requests should be weighted higher
+- Reciprocal of distance will discount outliers a lot more
+
+Using reciprocal distance alone:
+POI1: 10
+POI3: -2
+POI4: -10
+
+Now POI1 is the most popular, but it should be POI3.
+
+Multiplying the two:
+POI1: -9
+POI3: 10
+POI4: -10
+
+Better, but POI1 should still be more popular - modify weight of request distance
+(sum(1/(request distance)))^4 * POI density
+
+POI1: 5
+POI3: 10
+POI4: -10
+
+Looks good. Standard deviation of request distance might also be a factor but request density takes care of a lot of this, they are negatively correlated (-0.62)
